@@ -1,11 +1,53 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Asane CMS Admin</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>Asane CMS (Ov23liia3lC0iLCwaJqR)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:20px} .warn{color:#b91c1c}</style>
+</head>
+<body>
+  <h3>Asane CMS — admin (Ov23liia3lC0iLCwaJqR)</h3>
+  <p>Nếu vẫn lỗi “Not Found”, mở Console (F12) và gửi ảnh lỗi cho mình.</p>
+
+  <!-- inline config: thay oauth_client_id nếu bạn có Client ID -->
+  <script type="text/yaml" id="cms-config">
+backend:
+  name: github
+  repo: ajikameasane-eng/Weblightnovel
+  branch: main
+  # dùng decap-oauth-bridge để tránh redirect/callback của GitHub Pages
+  base_url: https://decap-oauth-bridge.onrender.com
+  auth_endpoint: auth
+  # nếu bạn có Client ID riêng (không bắt buộc với bridge), gõ ở dưới
+  # oauth_client_id: YOUR_CLIENT_ID_HERE
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "stories"
+    label: "Truyện"
+    folder: "stories"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tiêu đề", name: "title", widget: "string" }
+      - { label: "Tác giả", name: "author", widget: "string", default: "Asane" }
+      - { label: "Ngày đăng", name: "date", widget: "datetime" }
+      - { label: "Ảnh bìa", name: "thumbnail", widget: "image" }
+      - { label: "Mô tả", name: "description", widget: "text" }
+      - { label: "Nội dung", name: "body", widget: "markdown" }
+  </script>
+
+  <!-- Decap CMS -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+  <script>
+    // Useful small helper: if CMS fails to load, show some console info
+    window.addEventListener('error', e => console.log('Page error', e));
+    // If the CMS provides an onReady, it will initialize automatically reading #cms-config
+    console.log('Decap CMS script loaded. If login still fails, open DevTools -> Console/Network and copy errors.');
+  </script>
+</body>
 </html>
