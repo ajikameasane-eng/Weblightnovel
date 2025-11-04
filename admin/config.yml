@@ -1,14 +1,12 @@
 backend:
   name: github
-  repo: Weblightnovel/Website
+  repo: ajikameasane-eng/Weblightnovel
   branch: main
-  base_url: https://ajikameasane-eng.github.io/Weblightnovel
-  auth_endpoint: /api/auth
-  app_id: <Ov23liia3lC0iLCwaJqR>
-  client_id: <Ov23liia3lC0iLCwaJqR>
+  base_url: https://decap-oauth-bridge.onrender.com
+  auth_endpoint: auth
 
 media_folder: "assets/uploads"          
-public_folder: "/assets/uploads"       
+public_folder: "/assets/uploads"        
 
 collections:
   - name: "stories"
