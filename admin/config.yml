@@ -1,21 +1,21 @@
 backend:
   name: github
-  repo: ajikameasane-eng/Website   # repo của cậu
+  repo: Weblightnovel/Website
   branch: main
-  base_url: https://ajikameasane-eng.github.io/Website
+  base_url: https://ajikameasane-eng.github.io/Weblightnovel
   auth_endpoint: /api/auth
   app_id: <Ov23liia3lC0iLCwaJqR>
   client_id: <Ov23liia3lC0iLCwaJqR>
 
-media_folder: "assets/uploads"          # Nơi lưu ảnh thật trong repo
-public_folder: "/assets/uploads"        # Đường dẫn công khai để hiển thị ảnh
+media_folder: "assets/uploads"          
+public_folder: "/assets/uploads"       
 
 collections:
   - name: "stories"
     label: "Truyện"
     folder: "stories"
     create: true
-    slug: "{{slug}}"                     # Tên file tự động theo tiêu đề
+    slug: "{{slug}}"                    
     fields:
       - { label: "Tiêu đề", name: "title", widget: "string" }
       - { label: "Tác giả", name: "author", widget: "string", default: "Asane" }
