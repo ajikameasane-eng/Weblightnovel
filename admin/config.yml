@@ -4,17 +4,20 @@ backend:
   branch: main
   base_url: https://decap-oauth-bridge.onrender.com
   auth_endpoint: auth
-  
-media_folder: "images/uploads"
-public_folder: "/images/uploads"
+
+media_folder: "assets/uploads"          # Nơi lưu ảnh thật trong repo
+public_folder: "/assets/uploads"        # Đường dẫn công khai để hiển thị ảnh
 
 collections:
   - name: "stories"
     label: "Truyện"
     folder: "stories"
     create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    slug: "{{slug}}"                     # Tên file tự động theo tiêu đề
     fields:
       - { label: "Tiêu đề", name: "title", widget: "string" }
+      - { label: "Tác giả", name: "author", widget: "string", default: "Asane" }
       - { label: "Ngày đăng", name: "date", widget: "datetime" }
+      - { label: "Ảnh bìa", name: "thumbnail", widget: "image" }
+      - { label: "Mô tả ngắn", name: "description", widget: "text" }
       - { label: "Nội dung", name: "body", widget: "markdown" }
