@@ -1,53 +1,92 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <title>Asane CMS (Ov23liia3lC0iLCwaJqR)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:20px} .warn{color:#b91c1c}</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asane CMS v3 — Đăng truyện</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fff;
+      color: #000;
+      margin: 2rem;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: 1px solid #000;
+      background: #fafafa;
+    }
+    button {
+      cursor: pointer;
+      font-weight: bold;
+      background: #fff;
+    }
+  </style>
 </head>
 <body>
-  <h3>Asane CMS — admin (Ov23liia3lC0iLCwaJqR)</h3>
-  <p>Nếu vẫn lỗi “Not Found”, mở Console (F12) và gửi ảnh lỗi cho mình.</p>
-
-  <!-- inline config: thay oauth_client_id nếu bạn có Client ID -->
-  <script type="text/yaml" id="cms-config">
-backend:
-  name: github
-  repo: ajikameasane-eng/Weblightnovel
-  branch: main
-  # dùng decap-oauth-bridge để tránh redirect/callback của GitHub Pages
-  base_url: https://decap-oauth-bridge.onrender.com
-  auth_endpoint: auth
-  # nếu bạn có Client ID riêng (không bắt buộc với bridge), gõ ở dưới
-  # oauth_client_id: YOUR_CLIENT_ID_HERE
-
-media_folder: "assets/uploads"
-public_folder: "/assets/uploads"
-
-collections:
-  - name: "stories"
-    label: "Truyện"
-    folder: "stories"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "Tiêu đề", name: "title", widget: "string" }
-      - { label: "Tác giả", name: "author", widget: "string", default: "Asane" }
-      - { label: "Ngày đăng", name: "date", widget: "datetime" }
-      - { label: "Ảnh bìa", name: "thumbnail", widget: "image" }
-      - { label: "Mô tả", name: "description", widget: "text" }
-      - { label: "Nội dung", name: "body", widget: "markdown" }
-  </script>
-
-  <!-- Decap CMS -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <h1>📝 Đăng truyện mới</h1>
+  <input id="title" placeholder="Tiêu đề truyện" />
+  <input id="author" placeholder="Tác giả (tuỳ chọn)" />
+  <textarea id="desc" rows="3" placeholder="Mô tả ngắn..."></textarea>
+  <input id="cover" type="file" accept="image/*" />
+  <textarea id="content" rows="8" placeholder="Nội dung truyện..."></textarea>
+  <button onclick="uploadStory()">📤 Đăng truyện</button>
 
   <script>
-    // Useful small helper: if CMS fails to load, show some console info
-    window.addEventListener('error', e => console.log('Page error', e));
-    // If the CMS provides an onReady, it will initialize automatically reading #cms-config
-    console.log('Decap CMS script loaded. If login still fails, open DevTools -> Console/Network and copy errors.');
+    async function uploadStory() {
+      const title = document.getElementById('title').value.trim();
+      const author = document.getElementById('author').value.trim();
+      const desc = document.getElementById('desc').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const coverFile = document.getElementById('cover').files[0];
+
+      if (!title || !content) return alert('⚠️ Vui lòng nhập đủ tiêu đề và nội dung.');
+
+      let cover = '';
+      if (coverFile) {
+        const reader = new FileReader();
+        cover = await new Promise(resolve => {
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(coverFile);
+        });
+      }
+
+      const story = {
+        title,
+        author,
+        desc,
+        content,
+        cover,
+        date: new Date().toISOString()
+      };
+
+      const fileName = `stories/${title.replace(/\s+/g, '_')}.json`;
+
+      // ⚠️ Hướng dẫn: Dán token của cậu vào khi chạy local, KHÔNG commit lên repo!
+      const token = prompt("Dán GitHub Token của bạn tại đây:");
+
+      const response = await fetch(`https://api.github.com/repos/ajikameasane-eng/Weblightnovel/contents/${fileName}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `Add story: ${title}`,
+          content: btoa(JSON.stringify(story, null, 2))
+        })
+      });
+
+      if (response.ok) {
+        alert("✅ Truyện đã được đăng thành công lên GitHub!");
+        document.querySelectorAll('input, textarea').forEach(e => e.value = '');
+      } else {
+        const error = await response.json();
+        alert("❌ Lỗi khi đăng truyện: " + (error.message || 'Không rõ lỗi.'));
+      }
+    }
   </script>
 </body>
 </html>
