@@ -1,9 +1,11 @@
 backend:
   name: github
-  repo: ajikameasane-eng/Weblightnovel
+  repo: ajikameasane-eng/Website   # repo của cậu
   branch: main
-  base_url: https://decap-oauth-bridge.onrender.com
-  auth_endpoint: auth
+  base_url: https://ajikameasane-eng.github.io/Website
+  auth_endpoint: /api/auth
+  app_id: <Ov23liia3lC0iLCwaJqR>
+  client_id: <Ov23liia3lC0iLCwaJqR>
 
 media_folder: "assets/uploads"          # Nơi lưu ảnh thật trong repo
 public_folder: "/assets/uploads"        # Đường dẫn công khai để hiển thị ảnh
