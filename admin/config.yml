@@ -4,7 +4,7 @@ backend:
   branch: main
   base_url: https://ajikameasane-eng.github.io/Website
   auth_endpoint: /api/auth
-  app_id: < Ov23liia3lC0iLCwaJqR>
+  app_id: <Ov23liia3lC0iLCwaJqR>
   client_id: <Ov23liia3lC0iLCwaJqR>
 
 media_folder: "images/uploads"
