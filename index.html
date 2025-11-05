@@ -1,53 +1,663 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asane Light Novel</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #fff;
-      color: #000;
-      margin: 2rem;
-    }
-    .story {
-      border: 1px solid #000;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      background: #fafafa;
-    }
-    img { max-width: 100%; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Asane — Anime Dark Light Novel</title>
+
+<!-- Font UVN Van: nếu bạn có file .woff/.ttf, upload lên server và thay @font-face url bên dưới.
+     Nếu không có, hệ thống sẽ fallback sang Inter / system fonts. -->
+<style>
+@font-face{
+  font-family: "UVN-VAN";
+  src: local("UVN Vân"), local("UVN-VAN"),
+       /* nếu có file, sửa URL: url('./fonts/UVN-VAN.woff2') format('woff2'); */
+       ;
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+:root{
+  --bg:#0b0b0f;
+  --card:#0f1116;
+  --muted:#9aa3b2;
+  --accent:#ffd166;
+  --glass: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,#05050a 0%, #0b0b0f 60%);color:#f6f7fb;font-family:"UVN-VAN",Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+.container{max-width:1100px;margin:28px auto;padding:18px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#2b2b40,#1a1a27);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+.h-title{font-size:20px;font-weight:700}
+.top-actions{display:flex;gap:8px;align-items:center}
+.btn{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:10px;color:var(--accent);cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,#ffb86b,#ff7eb6);color:#111;border:0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-top:18px}
+.aside .profile{display:flex;gap:12px;align-items:center}
+.avatar{width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid rgba(255,255,255,0.06)}
+.small{color:var(--muted);font-size:13px}
+.input,textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--glass);color:#fff}
+textarea{min-height:140px;resize:vertical}
+.story-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:12px}
+.story-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;overflow:hidden;border:1px solid var(--border);cursor:pointer;display:flex;flex-direction:column}
+.story-cover{height:160px;background:#111;display:flex;align-items:center;justify-content:center;position:relative}
+.story-cover img{width:100%;height:100%;object-fit:cover}
+.story-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:8px}
+.story-title{font-weight:700}
+.row{display:flex;gap:8px;align-items:center}
+.icon-genre{width:36px;height:36px;border-radius:8px;object-fit:cover;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+.panel{margin-top:12px}
+.reader{background:linear-gradient(180deg,#06060a,#0b0b0f);padding:18px;border-radius:12px}
+.chapters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chap-btn{padding:8px 10px;border-radius:10px;background:transparent;border:1px solid var(--border);cursor:pointer;color:#fff}
+.comment{border-top:1px solid rgba(255,255,255,0.03);padding-top:8px;margin-top:8px}
+.comment-list{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.footer{margin-top:18px;color:var(--muted);text-align:center;font-size:13px}
+/* responsive */
+@media(max-width:980px){.grid{grid-template-columns:1fr}.story-list{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+</style>
 </head>
 <body>
-  <h1>📚 Asane Light Novel</h1>
-  <div id="stories">Đang tải truyện...</div>
+<div class="container">
+  <div class="header">
+    <div class="brand">
+      <div class="logo">As</div>
+      <div>
+        <div class="h-title">Asane — Light Novel</div>
+        <div class="small">Dark anime vibes • Read & Publish</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="btnNewStory" class="btn">➕ Đăng truyện</button>
+      <button id="btnProfile" class="btn">Hồ sơ</button>
+      <button id="btnSignOut" class="btn">Đăng xuất</button>
+    </div>
+  </div>
 
-  <script>
-    async function loadStories() {
-      const res = await fetch('https://api.github.com/repos/ajikameasane-eng/Weblightnovel/contents/stories');
-      const data = await res.json();
-      const container = document.getElementById('stories');
-      container.innerHTML = '';
+  <div class="grid">
+    <!-- LEFT ASIDE -->
+    <aside class="aside">
+      <div class="card">
+        <div class="profile">
+          <img id="meAvatar" class="avatar" src="" alt="avatar" />
+          <div>
+            <div id="meName" style="font-weight:700">Khách</div>
+            <div id="meBio" class="small">Chưa đăng nhập</div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="small">Tìm truyện</div>
+          <input id="search" class="input" placeholder="Tìm theo tiêu đề, tag..." />
+        </div>
 
-      for (const file of data) {
-        if (file.name.endsWith('.json')) {
-          const content = await fetch(file.download_url).then(r => r.json());
-          const div = document.createElement('div');
-          div.className = 'story';
-          div.innerHTML = `
-            <h2>${content.title}</h2>
-            <p><b>Tác giả:</b> ${content.author || 'Ẩn danh'}</p>
-            <p>${content.desc || ''}</p>
-            ${content.cover ? `<img src="${content.cover}" alt="Bìa truyện" />` : ''}
-            <p>${content.content.replace(/\n/g, '<br>')}</p>
-          `;
-          container.appendChild(div);
-        }
+        <div class="panel">
+          <div class="small" style="margin-bottom:8px">Thể loại (icon PNG)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="genreIconFile" type="file" accept="image/png,image/*" />
+            <input id="genreName" class="input" placeholder="Tên thể loại, ví dụ: Fantasy" />
+            <button id="btnAddGenre" class="btn">Thêm</button>
+          </div>
+          <div id="genres" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Danh sách truyện</div>
+          <div class="small">Sắp xếp theo mới nhất</div>
+        </div>
+
+        <div id="storiesWrap" class="story-list"></div>
+      </div>
+
+      <div id="readerPanel" class="card panel" style="display:none;margin-top:12px"></div>
+    </main>
+  </div>
+
+  <div class="footer card">Asane Library • Dark anime • Built with Firebase</div>
+</div>
+
+<!-- Modals / forms (hidden) -->
+<div id="modalRoot" style="display:none"></div>
+
+<!-- Firebase SDK (modular) -->
+<script type="module">
+/* ============================
+   Asane Light Novel — Firebase single-file frontend
+   Features:
+   - Auth (Email/Google)
+   - Profiles (users collection)
+   - Stories (Firestore collection 'stories')
+   - Volumes & Chapters nested arrays inside story doc
+   - Comments per chapter (collection 'comments', docId = storyId__volId__chapId)
+   - Storage: avatars/, covers/, genre-icons/, chapter-images/
+   ============================ */
+
+/* 1) IMPORTS */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, addDoc, getDoc, getDocs, query, where, onSnapshot, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
+
+/* 2) FIREBASE CONFIG — REPLACE WITH YOURS */
+const firebaseConfig = {
+  /* FIREBASE CONFIG HERE
+    apiKey: "AIza...",
+    authDomain: "yourproj.firebaseapp.com",
+    projectId: "yourproj",
+    storageBucket: "yourproj.appspot.com",
+    messagingSenderId: "...",
+    appId: "1:...:web:..."
+  */
+};
+
+if(!firebaseConfig || !firebaseConfig.apiKey){
+  // show instruction if config missing
+  document.body.innerHTML = `<div style="padding:32px;color:#fff;font-family:Inter,system-ui;font-size:18px">
+    <strong>Thiếu firebaseConfig.</strong><br>
+    Vui lòng dán config Firebase (from Project Settings → Your apps → config) vào biến <code>firebaseConfig</code> trong file HTML này.
+    </div>`;
+  throw new Error("Missing firebaseConfig");
+}
+
+/* 3) INIT */
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+/* 4) UI refs */
+const meAvatar = document.getElementById('meAvatar');
+const meName = document.getElementById('meName');
+const meBio = document.getElementById('meBio');
+const btnNewStory = document.getElementById('btnNewStory');
+const btnProfile = document.getElementById('btnProfile');
+const btnSignOut = document.getElementById('btnSignOut');
+const storiesWrap = document.getElementById('storiesWrap');
+const readerPanel = document.getElementById('readerPanel');
+const modalRoot = document.getElementById('modalRoot');
+const search = document.getElementById('search');
+
+const genreIconFile = document.getElementById('genreIconFile');
+const genreName = document.getElementById('genreName');
+const btnAddGenre = document.getElementById('btnAddGenre');
+const genresBox = document.getElementById('genres');
+
+/* 5) STATE */
+let currentUser = null;
+let genres = []; // {id, name, iconURL}
+
+/* 6) AUTH UI / Handlers */
+btnSignOut.onclick = ()=> signOut(auth);
+btnProfile.onclick = ()=> openProfileModal();
+btnNewStory.onclick = ()=> openNewStoryModal();
+
+// simple login modal on demand
+async function openAuthModal(){
+  const html = document.createElement('div');
+  html.className = 'card';
+  html.style.position='fixed'; html.style.left='50%'; html.style.top='50%'; html.style.transform='translate(-50%,-50%)';
+  html.style.zIndex = 9999; html.style.width='420px';
+  html.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">Đăng nhập / Đăng ký</div><button id="close">✕</button></div>
+    <div style="margin-top:8px">
+      <input id="a_email" class="input" placeholder="Email"/>
+      <input id="a_pass" type="password" class="input" placeholder="Mật khẩu" />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="a_login" class="btn primary">Đăng nhập</button>
+        <button id="a_signup" class="btn">Đăng ký</button>
+      </div>
+      <div style="margin-top:8px"><button id="a_google" class="btn">Đăng nhập với Google</button></div>
+    </div>
+  `;
+  modalRoot.innerHTML=''; modalRoot.style.display='block'; modalRoot.appendChild(html);
+  document.getElementById('close').onclick = ()=> closeModal();
+  document.getElementById('a_login').onclick = async ()=>{
+    const e = document.getElementById('a_email').value.trim();
+    const p = document.getElementById('a_pass').value;
+    try{ await signInWithEmailAndPassword(auth,e,p); closeModal(); }catch(err){ alert('Login failed: '+err.message); }
+  };
+  document.getElementById('a_signup').onclick = async ()=>{
+    const e = document.getElementById('a_email').value.trim();
+    const p = document.getElementById('a_pass').value;
+    try{
+      const cred = await createUserWithEmailAndPassword(auth,e,p);
+      // create user doc
+      await setDoc(doc(db,'users',cred.user.uid), { username: e.split('@')[0], bio:'', avatarURL:'', createdAt: Date.now() });
+      closeModal();
+    }catch(err){ alert('Signup failed: '+err.message); }
+  };
+  document.getElementById('a_google').onclick = async ()=>{
+    const provider = new GoogleAuthProvider();
+    try{
+      const r = await signInWithPopup(auth,provider);
+      const u = r.user;
+      const ud = await getDoc(doc(db,'users',u.uid));
+      if(!ud.exists()) await setDoc(doc(db,'users',u.uid), { username: u.displayName||u.email.split('@')[0], bio:'', avatarURL: u.photoURL||'', createdAt: Date.now() });
+      closeModal();
+    }catch(err){ alert('Google sign-in failed: '+err.message); }
+  };
+}
+function closeModal(){ modalRoot.style.display='none'; modalRoot.innerHTML=''; }
+
+/* 7) Profile modal */
+function openProfileModal(){
+  if(!currentUser){ openAuthModal(); return; }
+  const html = document.createElement('div');
+  html.className='card';
+  html.style.position='fixed'; html.style.left='50%'; html.style.top='50%'; html.style.transform='translate(-50%,-50%)';
+  html.style.zIndex=9999; html.style.width='480px';
+  html.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">Hồ sơ của tôi</div><button id="close">✕</button></div>
+    <div style="margin-top:12px">
+      <img id="pfAvatar" src="${meAvatar.src || ''}" style="width:96px;height:96px;border-radius:12px;object-fit:cover;border:1px solid var(--border)"/>
+      <div style="margin-top:8px">
+        <input id="pfName" class="input" placeholder="Tên hiển thị" value="${meName.textContent || ''}"/>
+        <textarea id="pfBio" class="input" placeholder="Mô tả ngắn">${meBio.textContent || ''}</textarea>
+        <div style="margin-top:8px">Avatar: <input id="pfFile" type="file" accept="image/*" /></div>
+        <div style="margin-top:8px"><button id="pfSave" class="btn primary">Lưu</button></div>
+      </div>
+    </div>
+  `;
+  modalRoot.innerHTML=''; modalRoot.style.display='block'; modalRoot.appendChild(html);
+  document.getElementById('close').onclick = ()=> closeModal();
+  document.getElementById('pfSave').onclick = async ()=>{
+    const name = document.getElementById('pfName').value.trim();
+    const bio = document.getElementById('pfBio').value.trim();
+    const file = document.getElementById('pfFile').files[0];
+    try{
+      let avatarURL = meAvatar.src;
+      if(file){
+        const path = `avatars/${currentUser.uid}/${Date.now()}_${file.name}`;
+        const r = sRef(storage,path);
+        await uploadBytes(r,file);
+        avatarURL = await getDownloadURL(r);
       }
+      await setDoc(doc(db,'users',currentUser.uid), { username:name, bio, avatarURL, email: currentUser.email, updatedAt: Date.now()},{ merge:true });
+      closeModal();
+      await refreshUserInfo();
+    }catch(err){ alert('Lưu hồ sơ lỗi: '+err.message) }
+  };
+}
+
+/* 8) NEW STORY modal */
+function openNewStoryModal(){
+  if(!currentUser){ openAuthModal(); return; }
+  const html = document.createElement('div');
+  html.className='card';
+  html.style.position='fixed'; html.style.left='50%'; html.style.top='50%'; html.style.transform='translate(-50%,-50%)';
+  html.style.zIndex=9999; html.style.width='640px';
+  html.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">Tạo truyện mới</div><button id="close">✕</button></div>
+    <div style="margin-top:10px">
+      <input id="s_title" class="input" placeholder="Tiêu đề" />
+      <input id="s_genre" class="input" placeholder="Thể loại (chọn từ danh sách hoặc nhập mới)" />
+      <select id="s_genre_select" class="input" style="margin-top:6px"><option value="">— chọn thể loại sẵn —</option></select>
+      <input id="s_tags" class="input" placeholder="Tag (phân cách bằng dấu ,)" />
+      <textarea id="s_summary" class="input" placeholder="Tóm tắt ngắn"></textarea>
+      <div style="margin-top:6px">Ảnh bìa: <input id="s_cover" type="file" accept="image/*" /></div>
+      <textarea id="s_first" class="input" placeholder="Chương đầu (nội dung)" rows=8></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px"><button id="s_create" class="btn primary">Tạo truyện</button><button id="s_cancel" class="btn">Hủy</button></div>
+    </div>
+  `;
+  modalRoot.innerHTML=''; modalRoot.style.display='block'; modalRoot.appendChild(html);
+  document.getElementById('close').onclick = ()=> closeModal();
+  // populate genre select
+  const sel = document.getElementById('s_genre_select');
+  genres.forEach(g=>{ const opt = document.createElement('option'); opt.value=g.name; opt.textContent=g.name; sel.appendChild(opt) });
+  document.getElementById('s_create').onclick = async ()=>{
+    const title = document.getElementById('s_title').value.trim();
+    const gen = (document.getElementById('s_genre').value.trim()) || document.getElementById('s_genre_select').value;
+    const tags = document.getElementById('s_tags').value.trim();
+    const sum = document.getElementById('s_summary').value.trim();
+    const first = document.getElementById('s_first').value.trim();
+    const coverFile = document.getElementById('s_cover').files[0];
+    if(!title || !first){ return alert('Tiêu đề và chương đầu không được rỗng'); }
+    try{
+      // upload cover
+      let coverURL = '';
+      if(coverFile){
+        const path = `covers/${currentUser.uid}/${Date.now()}_${coverFile.name}`;
+        const r = sRef(storage,path);
+        await uploadBytes(r,coverFile);
+        coverURL = await getDownloadURL(r);
+      }
+      // create story doc
+      const docRef = await addDoc(collection(db,'stories'), {
+        title, summary:sum, genre: gen||'', tags: tags||'', coverURL, authorId: currentUser.uid, authorName: meName.textContent || '', createdAt: Date.now(), volumes: [
+          { id:'v1', title:'Tập 1', chapters: [ { id:'c1', title:'Chương 1', content: first, images: [] } ] }
+        ]
+      });
+      closeModal();
+      await loadStories();
+      openStoryView(docRef.id);
+    }catch(err){ alert('Tạo truyện lỗi: '+err.message) }
+  };
+  document.getElementById('s_cancel').onclick = ()=> closeModal();
+}
+
+/* 9) Genres management */
+btnAddGenre.onclick = async ()=>{
+  if(!currentUser){ openAuthModal(); return; }
+  const name = genreName.value.trim();
+  const file = genreIconFile.files[0];
+  if(!name || !file) return alert('Chọn icon PNG và điền tên thể loại');
+  try{
+    const path = `genre-icons/${currentUser.uid}/${Date.now()}_${file.name}`;
+    const r = sRef(storage,path);
+    await uploadBytes(r,file);
+    const url = await getDownloadURL(r);
+    // save genre doc
+    const gDoc = await addDoc(collection(db,'genres'), { name, iconURL: url, createdAt: Date.now(), createdBy: currentUser.uid });
+    genreName.value=''; genreIconFile.value='';
+    await loadGenres();
+  }catch(err){ alert('Lỗi thêm thể loại: '+err.message) }
+};
+
+async function loadGenres(){
+  genres = [];
+  const q = await getDocs(collection(db,'genres'));
+  q.forEach(snap=>{ const d = snap.data(); d.id = snap.id; genres.push(d); });
+  // render
+  genresBox.innerHTML = '';
+  genres.forEach(g=>{
+    const el = document.createElement('div'); el.className='row small';
+    el.innerHTML = `<img src="${g.iconURL}" class="icon-genre" /><div style="flex:1">${g.name}</div>`;
+    genresBox.appendChild(el);
+  });
+}
+
+/* 10) Stories list */
+async function loadStories(q=''){
+  storiesWrap.innerHTML = '<div class="small">Đang tải...</div>';
+  try{
+    const snap = await getDocs(query(collection(db,'stories'), orderBy('createdAt','desc')));
+    const arr = [];
+    snap.forEach(s=> { const d=s.data(); d.id=s.id; arr.push(d) });
+    // filter
+    const filtered = q? arr.filter(s=> (s.title||'').toLowerCase().includes(q.toLowerCase()) || (s.tags||'').toLowerCase().includes(q.toLowerCase()) ) : arr;
+    storiesWrap.innerHTML = '';
+    filtered.forEach(s=>{
+      const card = document.createElement('div'); card.className='story-card';
+      card.innerHTML = `<div class="story-cover">${ s.coverURL ? `<img src="${s.coverURL}" />` : '<div style="padding:18px;color:var(--muted)">No cover</div>' }</div>
+        <div class="story-body">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="story-title">${s.title}</div>
+              <div class="small">${s.authorName || 'Ẩn danh'} • ${new Date(s.createdAt).toLocaleString()}</div>
+            </div>
+            <div style="text-align:right">
+              ${ s.genre ? `<img src="${getGenreIcon(s.genre)}" class="icon-genre" title="${s.genre}" />` : '' }
+            </div>
+          </div>
+          <div class="small" style="margin-top:8px">${s.summary || ''}</div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn" onclick="openStoryView('${s.id}')">📖 Đọc</button>
+            ${ currentUser && currentUser.uid === s.authorId ? `<button class="btn" onclick="editStory('${s.id}')">✏️ Sửa</button><button class="btn" onclick="deleteStory('${s.id}')">🗑️ Xóa</button>` : '' }
+          </div>
+        </div>`;
+      storiesWrap.appendChild(card);
+    });
+    if(filtered.length===0) storiesWrap.innerHTML = '<div class="small">Chưa có truyện.</div>';
+  }catch(err){ storiesWrap.innerHTML = '<div class="small">Lỗi tải truyện</div>'; console.error(err) }
+}
+search.oninput = ()=> loadStories(search.value.trim());
+
+/* helper: get genre icon URL from loaded genres */
+function getGenreIcon(name){
+  const g = genres.find(x=> x.name === name);
+  return g ? g.iconURL : '';
+}
+
+/* 11) Open story view (reader) */
+async function openStoryView(storyId){
+  readerPanel.style.display='block';
+  readerPanel.innerHTML = '<div class="small">Đang tải...</div>';
+  try{
+    const snap = await getDoc(doc(db,'stories',storyId));
+    if(!snap.exists()){ readerPanel.innerHTML = '<div class="small">Truyện không tồn tại</div>'; return; }
+    const s = snap.data();
+    s.id = snap.id;
+    // header
+    let html = `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:20px">${escapeHtml(s.title)}</div>
+        <div class="small">${escapeHtml(s.summary||'')}</div>
+        <div style="margin-top:8px" class="small">${s.authorName||''} • ${new Date(s.createdAt).toLocaleString()}</div>
+      </div>
+      <div style="width:220px"><img src="${s.coverURL||''}" style="width:220px;height:140px;object-fit:cover;border-radius:10px" /></div>
+    </div>`;
+    // volumes/chapter list
+    html += `<div style="margin-top:12px"><div style="font-weight:700">Tập / Chương</div><div class="chapters">`;
+    (s.volumes||[]).forEach(v=>{
+      v.chapters?.forEach(c=>{
+        html += `<button class="chap-btn" onclick="openChapter('${s.id}','${v.id}','${c.id}')">${escapeHtml(v.title)} • ${escapeHtml(c.title)}</button>`;
+      });
+    });
+    html += `</div></div>`;
+    // add controls for owner
+    if(currentUser && currentUser.uid === s.authorId){
+      html += `<div style="margin-top:12px;display:flex;gap:8px"><button class="btn" onclick="promptAddVolume('${s.id}')">➕ Tạo tập</button></div>`;
     }
-    loadStories();
-  </script>
+    // comments container
+    html += `<div id="readerComments" style="margin-top:12px"></div>`;
+    readerPanel.innerHTML = html;
+  }catch(err){ readerPanel.innerHTML = '<div class="small">Lỗi hiển thị truyện</div>'; console.error(err) }
+}
+
+/* 12) Chapter view + comments */
+async function openChapter(stId, volId, chId){
+  readerPanel.innerHTML = '<div class="small">Đang tải chương...</div>';
+  const snap = await getDoc(doc(db,'stories',stId));
+  if(!snap.exists()){ readerPanel.innerHTML = '<div class="small">Truyện không tồn tại</div>'; return; }
+  const s = snap.data(); s.id = snap.id;
+  const vol = (s.volumes||[]).find(v=> v.id === volId);
+  if(!vol) return;
+  const ch = (vol.chapters||[]).find(c=> c.id === chId);
+  if(!ch) return;
+  // header + content
+  let html = `<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800">${escapeHtml(s.title)}</div><div class="small">${escapeHtml(vol.title)} • ${escapeHtml(ch.title)}</div></div><div><button class="btn" onclick="openStoryView('${s.id}')">← Quay lại</button></div></div>`;
+  html += `<div class="reader" style="margin-top:12px">${formatContent(ch.content)}</div>`;
+  if(ch.images && ch.images.length){
+    html += `<div style="margin-top:10px">${ch.images.map(im=>`<img src="${im.url}" style="max-width:100%;margin-top:8px;border-radius:8px">`).join('')}</div>`;
+  }
+  // comment form
+  html += `<div style="margin-top:12px" class="card"><div style="font-weight:700">Bình luận</div>
+    ${ currentUser ? `<textarea id="c_text" class="input" placeholder="Viết bình luận..."></textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="btn primary" onclick="postComment('${s.id}','${volId}','${chId}')">Gửi</button></div>` : `<div class="small">Đăng nhập để bình luận</div><div style="margin-top:6px"><button class="btn" onclick="openAuthModal()">Đăng nhập</button></div>`}
+    <div id="commentList" class="comment-list"></div></div>`;
+  readerPanel.innerHTML = html;
+  loadComments(s.id, volId, chId);
+}
+
+/* 13) Comments */
+async function postComment(stId, volId, chId){
+  const txt = document.getElementById('c_text').value.trim();
+  if(!txt) return;
+  const key = `${stId}__${volId}__${chId}`;
+  await addDoc(collection(db,'comments'), { storyId:stId, volId, chId, authorId: currentUser.uid, authorName: meName.textContent||'', text: txt, createdAt: Date.now() });
+  document.getElementById('c_text').value='';
+  loadComments(stId,volId,chId);
+}
+async function loadComments(stId,volId,chId){
+  const list = document.getElementById('commentList');
+  list.innerHTML = '<div class="small">Đang tải bình luận...</div>';
+  const snaps = await getDocs(query(collection(db,'comments'), where('storyId','==',stId), orderBy('createdAt','asc')));
+  list.innerHTML = '';
+  snaps.forEach(snap=>{
+    const d = snap.data();
+    if(d.volId===volId && d.chId===chId){
+      const el = document.createElement('div'); el.className='comment';
+      el.innerHTML = `<div style="display:flex;gap:10px;align-items:flex-start"><img src="${getUserAvatar(d.authorId)}" style="width:40px;height:40px;border-radius:8px;object-fit:cover" /><div><div style="font-weight:700">${escapeHtml(d.authorName||'User')}</div><div class="small">${new Date(d.createdAt).toLocaleString()}</div><div style="margin-top:6px">${escapeHtml(d.text)}</div></div></div>`;
+      list.appendChild(el);
+    }
+  });
+}
+
+/* helper getUserAvatar - simple cache */
+const avatarCache = {};
+async function getUserAvatar(uid){
+  if(avatarCache[uid]) return avatarCache[uid];
+  try{
+    const snap = await getDoc(doc(db,'users',uid));
+    if(snap.exists()){ avatarCache[uid] = snap.data().avatarURL || ''; return avatarCache[uid]; }
+  }catch(e){}
+  return '';
+}
+
+/* 14) Add volume / add chapter (owner only) */
+async function promptAddVolume(stId){
+  const t = prompt('Tiêu đề tập mới:') || `Tập ${Date.now()}`;
+  if(!t) return;
+  const snap = await getDoc(doc(db,'stories',stId));
+  if(!snap.exists()) return;
+  const s = snap.data();
+  s.volumes = s.volumes||[];
+  s.volumes.push({ id: 'v'+Date.now(), title: t, chapters: [] });
+  await setDoc(doc(db,'stories',stId), s);
+  openStoryView(stId);
+}
+function promptAddChapter(stId, volId){
+  const title = prompt('Tiêu đề chương:') || `Chương ${Date.now()}`;
+  const content = prompt('Nội dung chương (dùng \\n để xuống dòng):') || '';
+  if(title===null || content===null) return;
+  // image optional
+  const input = document.createElement('input'); input.type='file'; input.accept='image/*';
+  input.onchange = async (e)=>{
+    const f = e.target.files[0];
+    let imgObj = null;
+    if(f){
+      const p = `chapters/${currentUser.uid}/${Date.now()}_${f.name}`;
+      const r = sRef(storage,p);
+      await uploadBytes(r,f);
+      const url = await getDownloadURL(r);
+      imgObj = { name: f.name, url };
+    }
+    await addChapter(stId, volId, title, content, imgObj);
+    openStoryView(stId);
+  };
+  input.click();
+}
+async function addChapter(stId, volId, title, content, imgObj){
+  const snap = await getDoc(doc(db,'stories',stId));
+  if(!snap.exists()) return;
+  const s = snap.data();
+  const vol = s.volumes.find(v=> v.id===volId);
+  if(!vol) return;
+  vol.chapters = vol.chapters||[];
+  vol.chapters.push({ id:'c'+Date.now(), title, content, images: imgObj ? [imgObj] : [] });
+  await setDoc(doc(db,'stories',stId), s);
+}
+
+/* 15) Edit / delete story */
+async function editStory(stId){
+  const snap = await getDoc(doc(db,'stories',stId));
+  if(!snap.exists()) return;
+  const s = snap.data();
+  // open modal similar to new story with prefilled data (left as exercise)
+  alert('Chức năng sửa đơn giản: mở modal tạo truyện và fill dữ liệu (tớ có thể mở rộng nếu cần).');
+}
+async function deleteStory(stId){
+  if(!confirm('Xóa truyện này?')) return;
+  try{ await deleteDoc(doc(db,'stories',stId)); await loadStories(); readerPanel.style.display='none'; }catch(e){ alert('Xóa lỗi: '+e.message) }
+}
+
+/* 16) Utility helpers */
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function formatContent(raw){ if(!raw) return ''; return '<div style="white-space:pre-wrap;line-height:1.8;color:#e9eef8">'+escapeHtml(raw).replace(/\n/g,'<br>')+'</div>'; }
+
+/* 17) Auth observer and initial loads */
+async function refreshUserInfo(){
+  if(!currentUser) return;
+  const ud = await getDoc(doc(db,'users',currentUser.uid));
+  const data = ud.exists()? ud.data() : null;
+  meAvatar.src = (data && data.avatarURL) || '';
+  meName.textContent = (data && data.username) || (currentUser.displayName || currentUser.email.split('@')[0]) || 'User';
+  meBio.textContent = (data && data.bio) || '';
+}
+onAuthStateChanged(auth, async user=>{
+  currentUser = user;
+  if(user){ btnSignOut.style.display='inline-block'; btnProfile.style.display='inline-block'; } else { btnSignOut.style.display='none'; btnProfile.style.display='inline-block'; }
+  await refreshUserInfo();
+});
+
+/* 18) initial */
+await loadGenres();
+await loadStories();
+
+/* Expose some funcs to global (for inline onclick used earlier) */
+window.openStoryView = openStoryView;
+window.openChapter = openChapter;
+window.promptAddVolume = promptAddVolume;
+window.editStory = editStory;
+window.deleteStory = deleteStory;
+window.openAuthModal = openAuthModal;
+window.openNewStoryModal = openNewStoryModal;
+window.openProfileModal = openProfileModal;
+window.formatContent = formatContent;
+window.getGenreIcon = getGenreIcon;
+window.openChapter = openChapter;
+</script>
+
+<!-- Firestore & Storage Rules suggestion (paste into Firebase console) -->
+<!--
+FIRESTORE RULES (basic, adjust for production):
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /genres/{gid} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.createdBy == request.auth.uid;
+    }
+    match /stories/{storyId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+    }
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow delete: if request.auth != null && (request.auth.uid == resource.data.authorId);
+    }
+  }
+}
+
+STORAGE RULES (basic):
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /avatars/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /covers/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /genre-icons/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /chapters/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+-->
+
 </body>
 </html>
